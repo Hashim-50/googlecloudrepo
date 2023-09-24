@@ -1,0 +1,26 @@
+steps:
+  # gradle initialization
+  - name: gradle:7.6-jdk19
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        # Save a value to persistent volume mount: "/workspace"
+        ls -ltrh
+        gradle init
+        gradle build
+        ls build/libs/
+  # build the container image
+  - name: "gcr.io/cloud-builders/docker"
+    args: ['build', '-t', 'asia-south1-docker.pkg.dev/silver-nova-394413/my-first-project/repo:$SHORT_SHA', '.']
+  # push the container image
+  - name: "gcr.io/cloud-builders/docker"
+    args: ['push', 'asia-south1-docker.pkg.dev/silver-nova-394413/my-first-project/repo:$SHORT_SHA']
+  # deploy container image to GKE
+  - name: "gcr.io/cloud-builders/gke-deploy"
+    args:
+      - run
+      - --filename=
+      - --image=asia-south1-docker.pkg.dev/silver-nova-394413/my-first-project/repo:$SHORT_SHA
+      - --location=asia-south1-a
+      - --cluster=new-cluster
