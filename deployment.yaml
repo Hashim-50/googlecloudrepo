@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-service
+  namespace: "new-ns"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-service
+  template:
+    metadata:
+      labels:
+        app: my-service
+    spec:
+      volumes:
+        - name: my-service
+          configMap:
+            name: my-service
+            items:
+             # - key: application.yaml
+             #   path: application.yaml
+      containers:
+        - name: my-service-container
+          image: "asia-south1-docker.pkg.dev/silver-nova-394413/my-first-project/repo"
+          volumeMounts:
+            - mountPath: /etc/k8s/
+              name: my-service
